@@ -5,6 +5,7 @@ import type { Program } from '../types'
 const COUNTRY_FLAGS: Record<string, string> = {
   Italy: '🇮🇹',
   France: '🇫🇷',
+  Belgium: '🇧🇪',
   Germany: '🇩🇪',
   'Czech Republic': '🇨🇿',
   Hungary: '🇭🇺',
