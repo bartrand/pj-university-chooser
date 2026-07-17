@@ -5,11 +5,12 @@ import { HOME_BASES } from '../data/programs'
 import type { Program, Region } from '../types'
 import 'leaflet/dist/leaflet.css'
 
-// Fix default marker icons under Vite
+// Local copies in /public — works with GitHub Pages base path
+const base = import.meta.env.BASE_URL
 const uniIcon = L.icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconUrl: `${base}marker-icon.png`,
+  iconRetinaUrl: `${base}marker-icon-2x.png`,
+  shadowUrl: `${base}marker-shadow.png`,
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
@@ -37,7 +38,6 @@ function offsetOverlapping(
 ): { program: Program; position: [number, number] }[] {
   const groups = new Map<string, Program[]>()
   for (const p of programs) {
-    // Same city = same pin problem at regional zoom (Krakow, Msida, …)
     const key = `${p.city}|${p.country}`
     const list = groups.get(key) ?? []
     list.push(p)
@@ -52,7 +52,6 @@ function offsetOverlapping(
     }
     const lat0 = group.reduce((s, p) => s + p.lat, 0) / group.length
     const lng0 = group.reduce((s, p) => s + p.lng, 0) / group.length
-    // Large enough to read as two pins on the Europe/Canada overview maps
     const radius = 0.35
     group.forEach((p, i) => {
       const angle = (2 * Math.PI * i) / group.length - Math.PI / 2
@@ -95,7 +94,12 @@ interface ProgramMapProps {
   onSelect: (id: string) => void
 }
 
-export function ProgramMap({ region, programs, selectedId, onSelect }: ProgramMapProps) {
+export function ProgramMap({
+  region,
+  programs,
+  selectedId,
+  onSelect,
+}: ProgramMapProps) {
   const view = REGION_VIEW[region]
   const markers = useMemo(() => offsetOverlapping(programs), [programs])
 
@@ -115,10 +119,10 @@ export function ProgramMap({ region, programs, selectedId, onSelect }: ProgramMa
         <FitBounds programs={programs} region={region} />
 
         {region === 'europe' &&
-          HOME_BASES.map((base) => (
-            <Marker key={base.id} position={[base.lat, base.lng]} icon={homeIcon}>
+          HOME_BASES.map((home) => (
+            <Marker key={home.id} position={[home.lat, home.lng]} icon={homeIcon}>
               <Popup>
-                <strong>{base.name}</strong>
+                <strong>{home.name}</strong>
                 <br />
                 Home base
               </Popup>

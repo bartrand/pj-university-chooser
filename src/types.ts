@@ -55,8 +55,6 @@ export interface Program {
   visaEntry: string
   lat: number
   lng: number
-  /** Tuition above the ~€3,400 / year target. */
-  overBudget?: boolean
 }
 
 export interface Filters {
@@ -71,7 +69,7 @@ export interface Filters {
   /** Minimum summer/field/co-op opportunity score (1–5). */
   minSummer: number
   language: 'all' | Language
-  /** Selected countries for Europe (all on by default). Ignored for Canada. */
+  /** Selected countries (all on by default, including Canada). */
   countries: string[]
   focus: FocusTag[]
   /** Max travel from LCA (hours) — applies to both Europe and Canada. */

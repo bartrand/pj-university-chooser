@@ -1,4 +1,4 @@
-import { totalEurMax, tuitionLabel } from '../costs'
+import { totalEurMax } from '../costs'
 import { formatMoney, type Currency } from '../currency'
 import type { Program } from '../types'
 
@@ -50,7 +50,7 @@ export function ProgramList({
             <button
               type="button"
               className={`fav-btn ${favorited ? 'on' : ''}`}
-              aria-label={favorited ? 'Remove from favorites' : 'Add to favorites'}
+              aria-label={favorited ? 'Remove from favourites' : 'Add to favourites'}
               aria-pressed={favorited}
               onClick={(e) => {
                 e.stopPropagation()
@@ -75,13 +75,9 @@ export function ProgramList({
               </span>
               <span className="list-row">
                 <span className="list-total">
-                  Total ~{formatMoney(totalEurMax(p), currency)}
+                  Total ~{formatMoney(totalEurMax(p), currency, 100)}
                 </span>
                 <span>~{p.travelHoursFromLca} hrs</span>
-              </span>
-              <span className="list-breakdown">
-                Tuition {tuitionLabel(p, currency)} · Living ~
-                {formatMoney(p.livingCostEur, currency)}
               </span>
             </button>
           </li>

@@ -1566,3 +1566,20 @@ export const EUROPE_COUNTRIES = [
     programs.filter((p) => p.region === 'europe').map((p) => p.country),
   ),
 ].sort()
+
+/** Country filter options — Canada first, then European countries A–Z. */
+export const FILTER_COUNTRIES = ['Canada', ...EUROPE_COUNTRIES]
+
+export const COUNTRY_FLAGS: Record<string, string> = {
+  Canada: '🇨🇦',
+  Italy: '🇮🇹',
+  France: '🇫🇷',
+  Germany: '🇩🇪',
+  'Czech Republic': '🇨🇿',
+  Hungary: '🇭🇺',
+  Poland: '🇵🇱',
+  Lithuania: '🇱🇹',
+  Estonia: '🇪🇪',
+  Malta: '🇲🇹',
+  Netherlands: '🇳🇱',
+}

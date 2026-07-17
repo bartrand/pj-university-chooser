@@ -2,27 +2,18 @@ import { useEffect, useMemo, useState } from 'react'
 import { AUTH_STORAGE_KEY, FAVORITES_STORAGE_KEY } from './config'
 import { totalEurMax } from './costs'
 import type { Currency } from './currency'
-import { programs, EUROPE_COUNTRIES } from './data/programs'
+import { programs } from './data/programs'
+import { DEFAULT_FILTERS } from './defaultFilters'
 import { PasswordGate } from './components/PasswordGate'
 import { CurrencyToggle } from './components/CurrencyToggle'
+import { RegionToggle } from './components/RegionToggle'
 import { FilterPanel } from './components/FilterPanel'
 import { ProgramList } from './components/ProgramList'
 import { ProgramMap } from './components/ProgramMap'
 import { DetailPanel } from './components/DetailPanel'
-import type { Filters } from './types'
+import type { Filters, Region } from './types'
 
-const DEFAULT_FILTERS: Filters = {
-  maxTotal: 28000,
-  minPrestige: 5,
-  minQol: 1,
-  minVisaEase: 1,
-  minSummer: 1,
-  language: 'all',
-  countries: [...EUROPE_COUNTRIES],
-  focus: [],
-  maxTravelHours: 20,
-  favoritesOnly: false,
-}
+type MobileTab = 'map' | 'list' | 'filters'
 
 function loadFavorites(): Set<string> {
   try {
@@ -46,10 +37,8 @@ function matchesFilters(filters: Filters, favorites: Set<string>) {
       if (p.visaEaseScore < filters.minVisaEase) return false
       if (p.summerScore < filters.minSummer) return false
       if (p.travelHoursFromLca > filters.maxTravelHours) return false
+      if (!filters.countries.includes(p.country)) return false
       if (filters.language !== 'all' && p.language !== filters.language) return false
-      if (p.region === 'europe' && !filters.countries.includes(p.country)) {
-        return false
-      }
       if (filters.focus.length > 0 && !filters.focus.some((t) => p.focus.includes(t))) {
         return false
       }
@@ -63,18 +52,44 @@ function matchesFilters(filters: Filters, favorites: Set<string>) {
     })
 }
 
+function useIsMobile(query = '(max-width: 900px)') {
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia(query).matches : false,
+  )
+
+  useEffect(() => {
+    const media = window.matchMedia(query)
+    const onChange = () => setIsMobile(media.matches)
+    onChange()
+    media.addEventListener('change', onChange)
+    return () => media.removeEventListener('change', onChange)
+  }, [query])
+
+  return isMobile
+}
+
 export default function App() {
+  const isMobile = useIsMobile()
   const [unlocked, setUnlocked] = useState(
     () => localStorage.getItem(AUTH_STORAGE_KEY) === '1',
   )
-  const [currency, setCurrency] = useState<Currency>('CAD')
+  const [currency, setCurrency] = useState<Currency>('USD')
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [favorites, setFavorites] = useState<Set<string>>(loadFavorites)
+  const [mapRegion, setMapRegion] = useState<Region>('europe')
+  const [mobileTab, setMobileTab] = useState<MobileTab>('map')
 
   useEffect(() => {
     localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify([...favorites]))
   }, [favorites])
+
+  // If the last favourite is removed, clear the favourites-only filter
+  useEffect(() => {
+    if (favorites.size === 0 && filters.favoritesOnly) {
+      setFilters((prev) => ({ ...prev, favoritesOnly: false }))
+    }
+  }, [favorites.size, filters.favoritesOnly])
 
   const filtered = useMemo(
     () => matchesFilters(filters, favorites),
@@ -90,7 +105,8 @@ export default function App() {
     [filtered],
   )
 
-  const selected = filtered.find((p) => p.id === selectedId) ?? null
+  // Keep detail open even if the program is filtered out of the list/maps
+  const selected = programs.find((p) => p.id === selectedId) ?? null
 
   function toggleFavorite(id: string) {
     setFavorites((prev) => {
@@ -100,6 +116,16 @@ export default function App() {
       return next
     })
   }
+
+  function handleSelect(id: string) {
+    setSelectedId(id)
+    const program = programs.find((p) => p.id === id)
+    if (program) setMapRegion(program.region)
+    if (isMobile) setMobileTab('map')
+  }
+
+  const showEuropeMap = !isMobile || (mobileTab === 'map' && mapRegion === 'europe')
+  const showCanadaMap = !isMobile || (mobileTab === 'map' && mapRegion === 'canada')
 
   if (!unlocked) {
     return <PasswordGate onUnlock={() => setUnlocked(true)} />
@@ -111,7 +137,7 @@ export default function App() {
         <div>
           <p className="brand">PJ University Chooser</p>
           <p className="tagline">
-            Earth science · Fall 2027 · Europe + Canada side by side
+            Earth science · Fall 2027 · Europe + Canada
           </p>
         </div>
         <div className="topbar-controls">
@@ -119,43 +145,74 @@ export default function App() {
         </div>
       </header>
 
-      <div className="workspace">
-        <div className="sidebar">
-          <FilterPanel
-            currency={currency}
-            filters={filters}
-            onChange={setFilters}
-            resultCount={filtered.length}
-            favoriteCount={favorites.size}
-          />
-          <ProgramList
-            programs={filtered}
-            selectedId={selectedId}
-            currency={currency}
-            favorites={favorites}
-            onSelect={setSelectedId}
-            onToggleFavorite={toggleFavorite}
-          />
-        </div>
+      <nav className="mobile-nav" aria-label="Main">
+        {(
+          [
+            ['map', 'Map'],
+            ['list', 'List'],
+            ['filters', 'Filters'],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            className={mobileTab === id ? 'active' : ''}
+            aria-current={mobileTab === id ? 'page' : undefined}
+            onClick={() => setMobileTab(id)}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
+
+      <div className={`workspace mobile-tab-${mobileTab}`}>
+        <aside className="sidebar">
+          <div className="filters-pane">
+            <FilterPanel
+              currency={currency}
+              filters={filters}
+              onChange={setFilters}
+              resultCount={filtered.length}
+              favoriteCount={favorites.size}
+            />
+          </div>
+          <div className="list-pane">
+            <ProgramList
+              programs={filtered}
+              selectedId={selectedId}
+              currency={currency}
+              favorites={favorites}
+              onSelect={handleSelect}
+              onToggleFavorite={toggleFavorite}
+            />
+          </div>
+        </aside>
 
         <main className="main">
-          <div className="maps-stack">
-            <section className="map-pane" aria-label="Europe map">
-              <ProgramMap
-                region="europe"
-                programs={europePrograms}
-                selectedId={selectedId}
-                onSelect={setSelectedId}
-              />
-            </section>
-            <section className="map-pane" aria-label="Canada map">
-              <ProgramMap
-                region="canada"
-                programs={canadaPrograms}
-                selectedId={selectedId}
-                onSelect={setSelectedId}
-              />
-            </section>
+          <div className="map-region-bar">
+            <RegionToggle region={mapRegion} onChange={setMapRegion} />
+          </div>
+          <div className={`maps-stack show-${mapRegion}`}>
+            {showEuropeMap && (
+              <section className="map-pane" aria-label="Europe map">
+                <ProgramMap
+                  region="europe"
+                  programs={europePrograms}
+                  selectedId={selectedId}
+                  onSelect={handleSelect}
+                />
+              </section>
+            )}
+            {showCanadaMap && (
+              <section className="map-pane" aria-label="Canada map">
+                <ProgramMap
+                  region="canada"
+                  programs={canadaPrograms}
+                  selectedId={selectedId}
+                  onSelect={handleSelect}
+                />
+              </section>
+            )}
           </div>
           <DetailPanel
             program={selected}

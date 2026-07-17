@@ -42,7 +42,7 @@ export function DetailPanel({
           <button
             type="button"
             className={`fav-btn detail-fav ${favorited ? 'on' : ''}`}
-            aria-label={favorited ? 'Remove from favorites' : 'Add to favorites'}
+            aria-label={favorited ? 'Remove from favourites' : 'Add to favourites'}
             aria-pressed={favorited}
             onClick={onToggleFavorite}
           >

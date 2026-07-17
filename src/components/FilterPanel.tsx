@@ -1,8 +1,13 @@
-import { EUROPE_COUNTRIES, FOCUS_LABELS } from '../data/programs'
-import { formatMoney, type Currency } from '../currency'
+import { COUNTRY_FLAGS, FILTER_COUNTRIES, FOCUS_LABELS } from '../data/programs'
+import { DEFAULT_FILTERS } from '../defaultFilters'
+import { convertFromEur, eurFromUsd, formatMoney, type Currency } from '../currency'
 import type { Filters, FocusTag } from '../types'
 
 const ALL_FOCUS = Object.keys(FOCUS_LABELS) as FocusTag[]
+
+const BUDGET_MIN_USD = 8000
+const BUDGET_MAX_USD = 38000
+const BUDGET_STEP_USD = 1000
 
 interface FilterPanelProps {
   currency: Currency
@@ -19,6 +24,15 @@ export function FilterPanel({
   resultCount,
   favoriteCount,
 }: FilterPanelProps) {
+  const maxTotalUsd = Math.min(
+    BUDGET_MAX_USD,
+    Math.max(
+      BUDGET_MIN_USD,
+      Math.round(convertFromEur(filters.maxTotal, 'USD') / BUDGET_STEP_USD) *
+        BUDGET_STEP_USD,
+    ),
+  )
+
   function toggleFocus(tag: FocusTag) {
     const next = filters.focus.includes(tag)
       ? filters.focus.filter((t) => t !== tag)
@@ -35,16 +49,9 @@ export function FilterPanel({
 
   function reset() {
     onChange({
-      maxTotal: 28000,
-      minPrestige: 5,
-      minQol: 1,
-      minVisaEase: 1,
-      minSummer: 1,
-      language: 'all',
-      countries: [...EUROPE_COUNTRIES],
-      focus: [],
-      maxTravelHours: 20,
-      favoritesOnly: false,
+      ...DEFAULT_FILTERS,
+      countries: [...DEFAULT_FILTERS.countries],
+      focus: [...DEFAULT_FILTERS.focus],
     })
   }
 
@@ -57,39 +64,44 @@ export function FilterPanel({
         </button>
       </div>
       <p className="result-count">
-        {resultCount} programs · Europe + Canada · favorites first
+        {resultCount} programs · Europe + Canada · favourites first
       </p>
 
-      <p className="filter-label">Favorites</p>
-      <div className="chip-row">
-        <button
-          type="button"
-          className={`chip ${!filters.favoritesOnly ? 'active' : ''}`}
-          onClick={() => onChange({ ...filters, favoritesOnly: false })}
-        >
-          All
-        </button>
-        <button
-          type="button"
-          className={`chip ${filters.favoritesOnly ? 'active' : ''}`}
-          onClick={() => onChange({ ...filters, favoritesOnly: true })}
-        >
-          Favorites only{favoriteCount > 0 ? ` (${favoriteCount})` : ''}
-        </button>
-      </div>
+      {favoriteCount > 0 && (
+        <>
+          <p className="filter-label">Favourites</p>
+          <div className="chip-row">
+            <button
+              type="button"
+              className={`chip ${!filters.favoritesOnly ? 'active' : ''}`}
+              onClick={() => onChange({ ...filters, favoritesOnly: false })}
+            >
+              All
+            </button>
+            <button
+              type="button"
+              className={`chip ${filters.favoritesOnly ? 'active' : ''}`}
+              onClick={() => onChange({ ...filters, favoritesOnly: true })}
+            >
+              Favourites only ({favoriteCount})
+            </button>
+          </div>
+        </>
+      )}
 
       <label className="filter-label" htmlFor="total">
-        Max tuition + living: {formatMoney(filters.maxTotal, currency)}/year
+        Max tuition + living: {formatMoney(filters.maxTotal, currency, 100)}
+        /year
       </label>
       <input
         id="total"
         type="range"
-        min={8000}
-        max={35000}
-        step={500}
-        value={filters.maxTotal}
+        min={BUDGET_MIN_USD}
+        max={BUDGET_MAX_USD}
+        step={BUDGET_STEP_USD}
+        value={maxTotalUsd}
         onChange={(e) =>
-          onChange({ ...filters, maxTotal: Number(e.target.value) })
+          onChange({ ...filters, maxTotal: eurFromUsd(Number(e.target.value)) })
         }
       />
 
@@ -168,19 +180,37 @@ export function FilterPanel({
         }
       />
 
-      <p className="filter-label">Europe country</p>
+      <p className="filter-label">Country</p>
       <div className="chip-row wrap">
-        {EUROPE_COUNTRIES.map((country) => (
+        {FILTER_COUNTRIES.map((country) => (
           <button
             key={country}
             type="button"
             className={`chip ${filters.countries.includes(country) ? 'active' : ''}`}
             onClick={() => toggleCountry(country)}
           >
-            {country}
+            <span aria-hidden="true">{COUNTRY_FLAGS[country] ?? ''}</span> {country}
           </button>
         ))}
       </div>
+      <p className="filter-links">
+        <button
+          type="button"
+          className="link-btn"
+          onClick={() =>
+            onChange({ ...filters, countries: [...FILTER_COUNTRIES] })
+          }
+        >
+          All
+        </button>
+        <button
+          type="button"
+          className="link-btn"
+          onClick={() => onChange({ ...filters, countries: [] })}
+        >
+          None
+        </button>
+      </p>
 
       <p className="filter-label">Language</p>
       <div className="chip-row">

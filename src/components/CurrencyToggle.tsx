@@ -6,7 +6,7 @@ interface CurrencyToggleProps {
   onChange: (currency: Currency) => void
 }
 
-const OPTIONS: Currency[] = ['CAD', 'EUR', 'USD']
+const OPTIONS: Currency[] = ['USD', 'CAD', 'EUR']
 
 export function CurrencyToggle({ currency, onChange }: CurrencyToggleProps) {
   return (
