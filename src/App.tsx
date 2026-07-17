@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { AUTH_STORAGE_KEY, FAVORITES_STORAGE_KEY } from './config'
+import { FAVORITES_STORAGE_KEY } from './config'
 import { totalEurMax } from './costs'
 import type { Currency } from './currency'
 import { programs } from './data/programs'
 import { DEFAULT_FILTERS } from './defaultFilters'
-import { PasswordGate } from './components/PasswordGate'
 import { CurrencyToggle } from './components/CurrencyToggle'
 import { RegionToggle } from './components/RegionToggle'
 import { FilterPanel } from './components/FilterPanel'
@@ -70,9 +69,6 @@ function useIsMobile(query = '(max-width: 900px)') {
 
 export default function App() {
   const isMobile = useIsMobile()
-  const [unlocked, setUnlocked] = useState(
-    () => localStorage.getItem(AUTH_STORAGE_KEY) === '1',
-  )
   const [currency, setCurrency] = useState<Currency>('USD')
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS)
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -126,10 +122,6 @@ export default function App() {
 
   const showEuropeMap = !isMobile || (mobileTab === 'map' && mapRegion === 'europe')
   const showCanadaMap = !isMobile || (mobileTab === 'map' && mapRegion === 'canada')
-
-  if (!unlocked) {
-    return <PasswordGate onUnlock={() => setUnlocked(true)} />
-  }
 
   return (
     <div className="app">
