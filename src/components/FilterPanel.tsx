@@ -235,6 +235,7 @@ export function FilterPanel({
             ['all', 'All'],
             ['english', 'English'],
             ['bilingual', 'FR/EN bilingual'],
+            ['french', 'French'],
           ] as const
         ).map(([value, label]) => (
           <button

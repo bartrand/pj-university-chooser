@@ -174,7 +174,9 @@ export function DetailPanel({
               <dd>
                 {program.language === 'english'
                   ? '100% English'
-                  : 'French–English bilingual'}
+                  : program.language === 'french'
+                    ? 'French'
+                    : 'French–English bilingual'}
               </dd>
             </div>
             <div>

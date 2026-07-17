@@ -127,7 +127,11 @@ export function ShortlistCompare({
     {
       label: 'Language',
       cell: (p) =>
-        p.language === 'english' ? '100% English' : 'FR/EN bilingual',
+        p.language === 'english'
+          ? '100% English'
+          : p.language === 'french'
+            ? 'French'
+            : 'FR/EN bilingual',
     },
     {
       label: 'Focus',

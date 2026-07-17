@@ -1,6 +1,6 @@
 export type Region = 'europe' | 'canada'
 
-export type Language = 'english' | 'bilingual'
+export type Language = 'english' | 'bilingual' | 'french'
 
 export type FocusTag =
   | 'paleontology'
