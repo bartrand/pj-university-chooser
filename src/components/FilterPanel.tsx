@@ -5,9 +5,9 @@ import type { Filters, FocusTag } from '../types'
 
 const ALL_FOCUS = Object.keys(FOCUS_LABELS) as FocusTag[]
 
-const BUDGET_MIN_USD = 8000
-const BUDGET_MAX_USD = 38000
-const BUDGET_STEP_USD = 1000
+const BUDGET_MIN_USD = 40000
+const BUDGET_MAX_USD = 110000
+const BUDGET_STEP_USD = 5000
 
 interface FilterPanelProps {
   currency: Currency
@@ -90,8 +90,7 @@ export function FilterPanel({
       )}
 
       <label className="filter-label" htmlFor="total">
-        Max tuition + living: {formatMoney(filters.maxTotal, currency, 100)}
-        /year
+        Max tuition + living: {formatMoney(filters.maxTotal, currency, 1000)}
       </label>
       <input
         id="total"
@@ -104,9 +103,12 @@ export function FilterPanel({
           onChange({ ...filters, maxTotal: eurFromUsd(Number(e.target.value)) })
         }
       />
+      <p className="filter-hint">
+        Full program total — Europe ×3 years, Canada ×4 years
+      </p>
 
       <label className="filter-label" htmlFor="prestige">
-        Min Earth Sciences prestige: {filters.minPrestige}/10
+        Min prestige: {filters.minPrestige}/10
       </label>
       <input
         id="prestige"
@@ -119,6 +121,9 @@ export function FilterPanel({
           onChange({ ...filters, minPrestige: Number(e.target.value) })
         }
       />
+      <p className="filter-hint">
+        Further education (Master’s/PhD) and geoscience workforce recognition
+      </p>
 
       <label className="filter-label" htmlFor="qol">
         Quality of life: {filters.minQol}/5
@@ -134,6 +139,9 @@ export function FilterPanel({
           onChange({ ...filters, minQol: Number(e.target.value) })
         }
       />
+      <p className="filter-hint">
+        Student-city livability, stress, and day-to-day ease for an international
+      </p>
 
       <label className="filter-label" htmlFor="visa">
         Min ease of admission / visa: {filters.minVisaEase}/5
@@ -149,6 +157,9 @@ export function FilterPanel({
           onChange({ ...filters, minVisaEase: Number(e.target.value) })
         }
       />
+      <p className="filter-hint">
+        How hard grades + paperwork are for a Canadian passport holder
+      </p>
 
       <label className="filter-label" htmlFor="summer">
         Min summer field / co-op / jobs: {filters.minSummer}/5
@@ -164,6 +175,9 @@ export function FilterPanel({
           onChange({ ...filters, minSummer: Number(e.target.value) })
         }
       />
+      <p className="filter-hint">
+        Field camps, co-op, or relevant paid summer work during the degree
+      </p>
 
       <label className="filter-label" htmlFor="travel">
         Max travel from LCA: {filters.maxTravelHours} hrs
@@ -179,7 +193,9 @@ export function FilterPanel({
           onChange({ ...filters, maxTravelHours: Number(e.target.value) })
         }
       />
-
+      <p className="filter-hint">
+        Typical door-to-door time from Larnaca (home base)
+      </p>
       <p className="filter-label">Country</p>
       <div className="chip-row wrap">
         {FILTER_COUNTRIES.map((country) => (

@@ -10,6 +10,7 @@ import { FilterPanel } from './components/FilterPanel'
 import { ProgramList } from './components/ProgramList'
 import { ProgramMap } from './components/ProgramMap'
 import { DetailPanel } from './components/DetailPanel'
+import { ShortlistCompare } from './components/ShortlistCompare'
 import type { Filters, Region } from './types'
 
 type MobileTab = 'map' | 'list' | 'filters'
@@ -75,6 +76,7 @@ export default function App() {
   const [favorites, setFavorites] = useState<Set<string>>(loadFavorites)
   const [mapRegion, setMapRegion] = useState<Region>('europe')
   const [mobileTab, setMobileTab] = useState<MobileTab>('map')
+  const [showShortlist, setShowShortlist] = useState(false)
 
   useEffect(() => {
     localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify([...favorites]))
@@ -87,9 +89,21 @@ export default function App() {
     }
   }, [favorites.size, filters.favoritesOnly])
 
+  useEffect(() => {
+    if (favorites.size < 2 && showShortlist) setShowShortlist(false)
+  }, [favorites.size, showShortlist])
+
   const filtered = useMemo(
     () => matchesFilters(filters, favorites),
     [filters, favorites],
+  )
+
+  const favoritePrograms = useMemo(
+    () =>
+      [...favorites]
+        .map((id) => programs.find((p) => p.id === id))
+        .filter((p): p is (typeof programs)[number] => p != null),
+    [favorites],
   )
 
   const europePrograms = useMemo(
@@ -133,6 +147,15 @@ export default function App() {
           </p>
         </div>
         <div className="topbar-controls">
+          {favorites.size >= 2 && (
+            <button
+              type="button"
+              className="shortlist-open-btn"
+              onClick={() => setShowShortlist(true)}
+            >
+              Compare shortlist ({favorites.size})
+            </button>
+          )}
           <CurrencyToggle currency={currency} onChange={setCurrency} />
         </div>
       </header>
@@ -216,6 +239,16 @@ export default function App() {
           />
         </aside>
       </div>
+
+      {showShortlist && favoritePrograms.length >= 2 && (
+        <ShortlistCompare
+          programs={favoritePrograms}
+          currency={currency}
+          onSelect={handleSelect}
+          onClose={() => setShowShortlist(false)}
+          onRemove={toggleFavorite}
+        />
+      )}
     </div>
   )
 }

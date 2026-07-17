@@ -3,7 +3,7 @@ import { eurFromUsd } from './currency'
 import type { Filters } from './types'
 
 export const DEFAULT_FILTERS: Filters = {
-  maxTotal: eurFromUsd(30000),
+  maxTotal: eurFromUsd(100000),
   minPrestige: 5,
   minQol: 3,
   minVisaEase: 3,

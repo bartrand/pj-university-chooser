@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { FOCUS_LABELS } from '../data/programs'
-import { totalLabel, tuitionLabel } from '../costs'
+import { programYears, totalLabel, tuitionLabel } from '../costs'
 import { formatMoney, type Currency } from '../currency'
 import type { Program } from '../types'
 import { WikiPhoto } from './WikiPhoto'
@@ -33,8 +33,8 @@ export function DetailPanel({
       <div className="detail-head">
         <div>
           <p className="detail-eyebrow">
-            {program.city}, {program.country} · Earth Sciences prestige{' '}
-            {program.prestige}/10
+            {program.city}, {program.country} · Prestige {program.prestige}/10
+            · Pathway {program.pathwayOverall}/10
           </p>
           <h2 id="detail-title">{program.university}</h2>
         </div>
@@ -57,6 +57,16 @@ export function DetailPanel({
       <div className="detail-body">
         <div className="detail-main">
           <p className="detail-program">{program.program}</p>
+          <p className="detail-official">
+            <a
+              href={program.programUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="detail-official-link"
+            >
+              Official program page ↗
+            </a>
+          </p>
 
           <p className="detail-section-label">Highlights</p>
           <ul className="detail-highlights">
@@ -67,10 +77,29 @@ export function DetailPanel({
 
           <dl className="detail-grid">
             <div>
-              <dt>Est. total / year</dt>
+              <dt>Pathway strength (Master’s / career)</dt>
+              <dd>
+                <strong>Overall {program.pathwayOverall}/10</strong>
+                <ul className="detail-notes">
+                  <li>
+                    Canada: <strong>{program.pathwayCanada}/10</strong> — Canadian
+                    MSc / geoscience jobs
+                  </li>
+                  <li>
+                    Europe: <strong>{program.pathwayEurope}/10</strong> — EU/EEA
+                    MSc / careers (incl. other countries)
+                  </li>
+                </ul>
+              </dd>
+            </div>
+            <div>
+              <dt>Est. total (full program)</dt>
               <dd>
                 <strong>{totalLabel(program, currency)}</strong>
-                <span className="muted"> (tuition + living)</span>
+                <span className="muted">
+                  {' '}
+                  — tuition + living × {programYears(program)} years
+                </span>
                 <div>
                   <button
                     type="button"

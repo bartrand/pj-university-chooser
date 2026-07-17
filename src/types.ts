@@ -34,8 +34,20 @@ export interface Program {
   livingCostNote?: string
   /** Optional all-in package total (tuition + housing + meals), EUR/year. */
   allInclusiveTotalEur?: number
-  /** Earth Sciences / geology program strength 1–10 (not overall university rank). */
+  /**
+   * Prestige 1–10: Earth Sciences recognition for both further education
+   * (Master’s / PhD admissions) and the geoscience workforce (employers, industry).
+   * Not overall university fame alone.
+   */
   prestige: number
+  /**
+   * Pathway strength 1–10: how well this bachelor sets up a Master’s / first career step.
+   * Canada = Canadian MSc / geoscience jobs; Europe = EU/EEA MSc / careers (incl. other countries).
+   * Overall = both-ways mobility (not a simple average when one side is much weaker).
+   */
+  pathwayCanada: number
+  pathwayEurope: number
+  pathwayOverall: number
   /** International student quality of life, 1–5. */
   qolScore: number
   qolNotes: string[]
@@ -53,14 +65,16 @@ export interface Program {
   focusSummary: string
   highlights: string[]
   visaEntry: string
+  /** Official university program page (best available English landing page). */
+  programUrl: string
   lat: number
   lng: number
 }
 
 export interface Filters {
-  /** Max estimated total = tuition + living (EUR/year). */
+  /** Max estimated full-program total = (tuition + living) × years (EUR). */
   maxTotal: number
-  /** Minimum Earth Sciences program prestige (1–10). */
+  /** Minimum prestige for further education + geoscience workforce (1–10). */
   minPrestige: number
   /** Minimum international student QoL (1–5). */
   minQol: number

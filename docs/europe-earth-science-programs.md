@@ -25,7 +25,7 @@
 | U of Strasbourg | France | Bilingual FR/EN | ~$4,050 | ~6 hours | Classical Geochemistry, Mineralogy, Petrology |
 | U of Hamburg | Germany | 100% English | ~$1,000 (fees only) | ~5.5 hours | Math/Physics of Earth, Climate, Python |
 | U of Bremen | Germany | 100% English | ~$1,000 (fees only) | ~5.5 hours | Core Geology, Marine Geophysics, Offshore Energy |
-| U of Lille | France | Bilingual FR/EN | ~$4,050 | ~6 hours | Extensive Fieldwork (200+ hrs), Paleontology |
+| U of Lille | France | Bilingual FR/EN | ~$4,050 | ~6 hours | Mandatory field trips, Paleontology |
 | Charles University | Czech Rep. | 100% English | ~$4,400 | ~4.5 hours | Multi-disciplinary Science, Rock Physics |
 | U of Trieste | Italy | 100% English | ~$2,900 | ~5.5 hours | Geohazards, Structural Geology, Mapping |
 | U of Camerino | Italy | 100% English | ~$520 to $1,400 | ~6.5 hours | Fieldwork in active Apennines tectonic zone |
@@ -117,7 +117,7 @@
 
 **Highlights**
 
-- 200+ hours of hands-on geological fieldwork
+- Mandatory multi-day geological field trips (e.g. Boulonnais, Vosges, Ardennes, Jura)
 - Classical stratigraphy, rocks, and paleontology
 
 ---

@@ -1,4 +1,4 @@
-import { totalEurMax } from '../costs'
+import { programYears, totalEurMax } from '../costs'
 import { formatMoney, type Currency } from '../currency'
 import type { Program } from '../types'
 
@@ -10,7 +10,6 @@ const COUNTRY_FLAGS: Record<string, string> = {
   Hungary: '🇭🇺',
   Poland: '🇵🇱',
   Lithuania: '🇱🇹',
-  Estonia: '🇪🇪',
   Malta: '🇲🇹',
   Netherlands: '🇳🇱',
   Canada: '🇨🇦',
@@ -66,8 +65,12 @@ export function ProgramList({
             >
               <span className="list-title">{p.university}</span>
               <span className="list-meta">
-                {COUNTRY_FLAGS[p.country] ?? ''} {p.city}, {p.country} · ES prestige{' '}
+                {COUNTRY_FLAGS[p.country] ?? ''} {p.city}, {p.country} · Prestige{' '}
                 {p.prestige}/10
+              </span>
+              <span className="list-scores">
+                Pathway CA {p.pathwayCanada} · EU {p.pathwayEurope} · Overall{' '}
+                {p.pathwayOverall}/10
               </span>
               <span className="list-scores">
                 QoL {p.qolScore}/5 · Admit {p.visaEaseScore}/5 · Summer{' '}
@@ -75,7 +78,8 @@ export function ProgramList({
               </span>
               <span className="list-row">
                 <span className="list-total">
-                  Total ~{formatMoney(totalEurMax(p), currency, 100)}
+                  Total ~{formatMoney(totalEurMax(p), currency, 1000)} (
+                  {programYears(p)}-yr)
                 </span>
                 <span>~{p.travelHoursFromLca} hrs</span>
               </span>
