@@ -158,26 +158,14 @@ export default function App() {
       </nav>
 
       <div className={`workspace mobile-tab-${mobileTab}`}>
-        <aside className="sidebar">
-          <div className="filters-pane">
-            <FilterPanel
-              currency={currency}
-              filters={filters}
-              onChange={setFilters}
-              resultCount={filtered.length}
-              favoriteCount={favorites.size}
-            />
-          </div>
-          <div className="list-pane">
-            <ProgramList
-              programs={filtered}
-              selectedId={selectedId}
-              currency={currency}
-              favorites={favorites}
-              onSelect={handleSelect}
-              onToggleFavorite={toggleFavorite}
-            />
-          </div>
+        <aside className="filters-pane" aria-label="Filters">
+          <FilterPanel
+            currency={currency}
+            filters={filters}
+            onChange={setFilters}
+            resultCount={filtered.length}
+            favoriteCount={favorites.size}
+          />
         </aside>
 
         <main className="main">
@@ -216,6 +204,17 @@ export default function App() {
             onClose={() => setSelectedId(null)}
           />
         </main>
+
+        <aside className="list-pane" aria-label="Programs">
+          <ProgramList
+            programs={filtered}
+            selectedId={selectedId}
+            currency={currency}
+            favorites={favorites}
+            onSelect={handleSelect}
+            onToggleFavorite={toggleFavorite}
+          />
+        </aside>
       </div>
     </div>
   )
