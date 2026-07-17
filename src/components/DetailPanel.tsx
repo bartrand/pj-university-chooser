@@ -118,6 +118,12 @@ export function DetailPanel({
                         <span className="muted"> — {program.tuitionNote}</span>
                       )}
                     </li>
+                    {program.collegeFeederTuitionNote && (
+                      <li>
+                        <span className="muted">College feeder (yrs 1–2):</span>{' '}
+                        {program.collegeFeederTuitionNote}
+                      </li>
+                    )}
                     <li>
                       <span className="muted">Living:</span> ~
                       {formatMoney(program.livingCostEur, currency)}/year

@@ -64,6 +64,11 @@ export function ShortlistCompare({
       cell: (p) => (
         <>
           ~{formatMoney(totalEurMax(p), currency, 1000)} ({programYears(p)}-yr)
+          {p.collegeFeederTuitionNote && (
+            <div className="shortlist-note">
+              Feeder: {p.collegeFeederTuitionNote}
+            </div>
+          )}
         </>
       ),
     },

@@ -489,7 +489,7 @@ export const programs: Program[] = [
     tuitionNote: '~€3,000/year',
     livingCostEur: 9600,
     livingCostNote: 'Shared rent + food + transit/basics (~€800/mo)',
-    prestige: 5,
+    prestige: 6,
     pathwayCanada: 4,
     pathwayEurope: 5,
     pathwayOverall: 5,
@@ -554,11 +554,11 @@ export const programs: Program[] = [
       'Smaller international scene than Padua, Prague, or Budapest',
       'Daily life and housing still lean Italian; fewer big-city distractions',
     ],
-    visaEaseScore: 2,
+    visaEaseScore: 3,
     visaEaseNotes: [
       'Academic entry is usually diploma-based rather than a high GPA race',
       'Same Italian non-EU bottleneck as Padua: Universitaly + Type D visa + permesso',
-      'Fewer English-bachelor support services than Padua — paperwork feels heavier in practice',
+      'Fewer English-bachelor support services than Padua — paperwork is doable but a bit heavier in practice',
     ],
     summerScore: 4,
     summerNotes: [
@@ -1260,6 +1260,8 @@ export const programs: Program[] = [
     tuitionEurMin: 4800,
     tuitionEurMax: 6100,
     tuitionNote: '~CAD $6,000–$9,000/year domestic (course-load dependent)',
+    collegeFeederTuitionNote:
+      'BC college UT Science (e.g. Camosun, Langara, Douglas): ~CAD $3,400–$4,000/yr for yrs 1–2; transfer into SEOS not guaranteed',
     livingCostEur: 13300,
     livingCostNote: 'Shared rent + food + transit/basics (~CAD $20,000/year) — cheaper than Vancouver',
     prestige: 8,
@@ -1315,6 +1317,8 @@ export const programs: Program[] = [
     tuitionEurMin: 5400,
     tuitionEurMax: 6500,
     tuitionNote: '~CAD $8,000–$9,500/year domestic Science estimate',
+    collegeFeederTuitionNote:
+      'BC college UT Science (e.g. Langara, Douglas, Capilano): ~CAD $3,400–$4,000/yr for yrs 1–2; EOAS transfer is competitive / course-match dependent',
     livingCostEur: 17300,
     livingCostNote: 'Shared rent + food + transit/basics (~CAD $26,000/year) — among Canada’s highest',
     prestige: 9,
@@ -1370,6 +1374,8 @@ export const programs: Program[] = [
     tuitionEurMin: 4800,
     tuitionEurMax: 5800,
     tuitionNote: '~CAD $7,000–$8,500/year domestic Science estimate',
+    collegeFeederTuitionNote:
+      'Alberta UT Science (e.g. MacEwan, Keyano, NAIT pathways): ~CAD $5,000–$6,500/yr for yrs 1–2; ACAT transfer, seats/GPA matter',
     livingCostEur: 11700,
     livingCostNote: 'Shared rent + food + transit/basics (~CAD $17,500/year)',
     prestige: 10,
@@ -1425,6 +1431,8 @@ export const programs: Program[] = [
     tuitionEurMin: 4800,
     tuitionEurMax: 5800,
     tuitionNote: '~CAD $7,000–$8,500/year domestic Science estimate',
+    collegeFeederTuitionNote:
+      'Alberta UT Science (e.g. MacEwan, SAIT, Mount Royal pathways): ~CAD $5,000–$6,500/yr for yrs 1–2; transfer into Geology not automatic',
     livingCostEur: 12700,
     livingCostNote: 'Shared rent + food + transit/basics (~CAD $19,000/year)',
     prestige: 9,
@@ -1480,6 +1488,8 @@ export const programs: Program[] = [
     tuitionEurMin: 5200,
     tuitionEurMax: 6500,
     tuitionNote: '~CAD $7,500–$9,500/year domestic Arts & Science estimate',
+    collegeFeederTuitionNote:
+      'Ontario college Science / GAS (e.g. Seneca, Humber): ~CAD $2,700–$3,500/yr for yrs 1–2; Earth Sciences transfer is selective',
     livingCostEur: 16000,
     livingCostNote: 'Shared rent + food + transit/basics (~CAD $24,000/year)',
     prestige: 8,
@@ -1535,6 +1545,8 @@ export const programs: Program[] = [
     tuitionEurMin: 3000,
     tuitionEurMax: 5500,
     tuitionNote: '~CAD $2,800–$8,000/year depending on Quebec vs out-of-province domestic rates',
+    collegeFeederTuitionNote:
+      'Quebec CEGEP (e.g. Dawson, Vanier, John Abbott): ~CAD $3,740/yr for non-QC Canadians (~$0 tuition if QC resident); many out-of-province students skip CEGEP',
     livingCostEur: 12700,
     livingCostNote: 'Shared rent + food + transit/basics (~CAD $19,000/year) — strong value vs Toronto/Vancouver',
     prestige: 8,
@@ -1590,6 +1602,8 @@ export const programs: Program[] = [
     tuitionEurMin: 4200,
     tuitionEurMax: 5300,
     tuitionNote: '~CAD $6,200–$7,800/year domestic Arts & Science (+ ancillaries)',
+    collegeFeederTuitionNote:
+      'Ontario college Science / transfer: ~CAD $2,700–$3,500/yr for yrs 1–2; Queen’s Geological Sciences transfer is selective',
     livingCostEur: 11700,
     livingCostNote: 'Shared rent + food + transit/basics (~CAD $17,500/year)',
     prestige: 8,
@@ -1645,6 +1659,8 @@ export const programs: Program[] = [
     tuitionEurMin: 5500,
     tuitionEurMax: 6800,
     tuitionNote: '~CAD $8,000–$10,000/year domestic estimate (NS rates vary)',
+    collegeFeederTuitionNote:
+      'NSCC: ~CAD $3,600–$3,800/yr tuition for yrs 1–2; dedicated Earth Sciences 2+2 is limited vs BC/AB/ON',
     livingCostEur: 11300,
     livingCostNote: 'Shared rent + food + transit/basics (~CAD $17,000/year)',
     prestige: 7,
@@ -1700,6 +1716,8 @@ export const programs: Program[] = [
     tuitionEurMin: 2200,
     tuitionEurMax: 3200,
     tuitionNote: '~CAD $3,200–$4,700/year domestic — among Canada’s lowest',
+    collegeFeederTuitionNote:
+      'College of the North Atlantic UT: ~CAD $2,500–$3,500/yr for yrs 1–2; savings vs Memorial are smaller because uni tuition is already low',
     livingCostEur: 10300,
     livingCostNote: 'Shared rent + food + transit/basics (~CAD $15,500/year)',
     prestige: 8,
@@ -1755,6 +1773,8 @@ export const programs: Program[] = [
     tuitionEurMin: 5500,
     tuitionEurMax: 7000,
     tuitionNote: '~CAD $8,000–$10,500/year domestic Science estimate',
+    collegeFeederTuitionNote:
+      'Ontario college Science transfer (e.g. Conestoga): ~CAD $2,700–$3,500/yr for yrs 1–2; Waterloo Earth Sciences transfer is competitive',
     livingCostEur: 12300,
     livingCostNote: 'Shared rent + food + transit/basics (~CAD $18,500/year)',
     prestige: 8,

@@ -29,6 +29,11 @@ export interface Program {
   tuitionEurMin: number
   tuitionEurMax: number
   tuitionNote?: string
+  /**
+   * Optional: same-province college/CEGEP feeder tuition for years 1–2
+   * (domestic Canadian citizen ballpark), if a 2+2-style path is used.
+   */
+  collegeFeederTuitionNote?: string
   /** Est. student living costs EUR/year (shared rent + food + transit/basics). */
   livingCostEur: number
   livingCostNote?: string
