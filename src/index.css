@@ -501,7 +501,6 @@ input {
   .detail-photos {
     grid-template-columns: 1fr 1fr;
     position: static;
-    order: -1;
   }
 }
 
@@ -573,7 +572,6 @@ input {
   .detail-photos {
     grid-template-columns: 1fr 1fr;
     position: static;
-    order: -1;
   }
 }
 
@@ -728,7 +726,6 @@ input {
   .detail-photos {
     grid-template-columns: 1fr 1fr;
     position: static;
-    order: -1;
   }
 }
 
