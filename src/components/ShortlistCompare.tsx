@@ -2,9 +2,11 @@ import type { ReactNode } from 'react'
 import { programYears, totalEurMax } from '../costs'
 import { formatMoney, type Currency } from '../currency'
 import { COUNTRY_FLAGS } from '../data/programs'
+import type { Profile } from '../profiles'
 import type { Program } from '../types'
 
 interface ShortlistCompareProps {
+  profile: Profile
   programs: Program[]
   currency: Currency
   onSelect: (id: string) => void
@@ -23,17 +25,18 @@ function ScoreCell({ score, note }: { score: string; note: string }) {
   )
 }
 
-function pathwayNote(p: Program) {
+function pathwayNote(p: Program, profile: Profile) {
   if (p.pathwayCanada - p.pathwayEurope >= 2) {
-    return 'Stronger signal for Canadian MSc / geoscience jobs'
+    return profile.pathwayCanadaStrong
   }
   if (p.pathwayEurope - p.pathwayCanada >= 2) {
-    return 'Stronger signal for EU/EEA MSc / careers'
+    return profile.pathwayEuropeStrong
   }
-  return 'Balanced mobility for Canada and Europe next steps'
+  return profile.pathwayBalanced
 }
 
 export function ShortlistCompare({
+  profile,
   programs,
   currency,
   onSelect,
@@ -77,10 +80,7 @@ export function ShortlistCompare({
       cell: (p) => (
         <ScoreCell
           score={`${p.prestige}/10`}
-          note={
-            p.highlights[0] ??
-            'Further education + geoscience workforce recognition'
-          }
+          note={p.highlights[0] ?? profile.prestigeFallbackNote}
         />
       ),
     },
@@ -89,7 +89,7 @@ export function ShortlistCompare({
       cell: (p) => (
         <ScoreCell
           score={`${p.pathwayCanada} / ${p.pathwayEurope} / ${p.pathwayOverall}`}
-          note={pathwayNote(p)}
+          note={pathwayNote(p, profile)}
         />
       ),
     },
@@ -116,7 +116,7 @@ export function ShortlistCompare({
       cell: (p) => (
         <ScoreCell
           score={`${p.summerScore}/5`}
-          note={p.summerNotes[0] ?? 'Field / co-op / paid summer options'}
+          note={p.summerNotes[0] ?? profile.summerFallbackNote}
         />
       ),
     },

@@ -1,15 +1,17 @@
-import { COUNTRY_FLAGS, FILTER_COUNTRIES, FOCUS_LABELS } from '../data/programs'
-import { DEFAULT_FILTERS } from '../defaultFilters'
+import { COUNTRY_FLAGS } from '../data/programs'
 import { convertFromEur, eurFromUsd, formatMoney, type Currency } from '../currency'
+import {
+  countriesForProfile,
+  defaultFiltersFor,
+  type Profile,
+} from '../profiles'
 import type { Filters, FocusTag } from '../types'
 
-const ALL_FOCUS = Object.keys(FOCUS_LABELS) as FocusTag[]
-
-const BUDGET_MIN_USD = 40000
-const BUDGET_MAX_USD = 110000
+const BUDGET_MIN_USD = 20000
 const BUDGET_STEP_USD = 5000
 
 interface FilterPanelProps {
+  profile: Profile
   currency: Currency
   filters: Filters
   onChange: (filters: Filters) => void
@@ -18,14 +20,19 @@ interface FilterPanelProps {
 }
 
 export function FilterPanel({
+  profile,
   currency,
   filters,
   onChange,
   resultCount,
   favoriteCount,
 }: FilterPanelProps) {
+  const focusTags = Object.keys(profile.focusLabels) as FocusTag[]
+  const filterCountries = countriesForProfile(profile)
+  const budgetMaxUsd = profile.budgetMaxUsd
+
   const maxTotalUsd = Math.min(
-    BUDGET_MAX_USD,
+    budgetMaxUsd,
     Math.max(
       BUDGET_MIN_USD,
       Math.round(convertFromEur(filters.maxTotal, 'USD') / BUDGET_STEP_USD) *
@@ -48,10 +55,11 @@ export function FilterPanel({
   }
 
   function reset() {
+    const defaults = defaultFiltersFor(profile)
     onChange({
-      ...DEFAULT_FILTERS,
-      countries: [...DEFAULT_FILTERS.countries],
-      focus: [...DEFAULT_FILTERS.focus],
+      ...defaults,
+      countries: [...defaults.countries],
+      focus: [...defaults.focus],
     })
   }
 
@@ -96,7 +104,7 @@ export function FilterPanel({
         id="total"
         type="range"
         min={BUDGET_MIN_USD}
-        max={BUDGET_MAX_USD}
+        max={budgetMaxUsd}
         step={BUDGET_STEP_USD}
         value={maxTotalUsd}
         onChange={(e) =>
@@ -121,9 +129,7 @@ export function FilterPanel({
           onChange({ ...filters, minPrestige: Number(e.target.value) })
         }
       />
-      <p className="filter-hint">
-        Further education (Master’s/PhD) and geoscience workforce recognition
-      </p>
+      <p className="filter-hint">{profile.prestigeHint}</p>
 
       <label className="filter-label" htmlFor="qol">
         Quality of life: {filters.minQol}/5
@@ -162,7 +168,7 @@ export function FilterPanel({
       </p>
 
       <label className="filter-label" htmlFor="summer">
-        Min summer field / co-op / jobs: {filters.minSummer}/5
+        {profile.summerFilterLabel}: {filters.minSummer}/5
       </label>
       <input
         id="summer"
@@ -175,12 +181,10 @@ export function FilterPanel({
           onChange({ ...filters, minSummer: Number(e.target.value) })
         }
       />
-      <p className="filter-hint">
-        Field camps, co-op, or relevant paid summer work during the degree
-      </p>
+      <p className="filter-hint">{profile.summerHint}</p>
 
       <label className="filter-label" htmlFor="travel">
-        Max travel from LCA: {filters.maxTravelHours} hrs
+        Max travel: {filters.maxTravelHours} hrs
       </label>
       <input
         id="travel"
@@ -193,12 +197,41 @@ export function FilterPanel({
           onChange({ ...filters, maxTravelHours: Number(e.target.value) })
         }
       />
-      <p className="filter-hint">
-        Typical door-to-door time from Larnaca (home base)
-      </p>
+      <p className="filter-hint">{profile.travelHint}</p>
+
+      {profile.id === 'solange' && (
+        <>
+          <p className="filter-label">Stage entry</p>
+          <div className="chip-row">
+            <button
+              type="button"
+              className={`chip ${filters.hideAuditionGated ? 'active' : ''}`}
+              onClick={() =>
+                onChange({ ...filters, hideAuditionGated: true })
+              }
+            >
+              Hide audition-gated
+            </button>
+            <button
+              type="button"
+              className={`chip ${!filters.hideAuditionGated ? 'active' : ''}`}
+              onClick={() =>
+                onChange({ ...filters, hideAuditionGated: false })
+              }
+            >
+              Show all (incl. stretch)
+            </button>
+          </div>
+          <p className="filter-hint">
+            Default hides conservatoire / audition schools — better fit with
+            informal improv and no stage experience
+          </p>
+        </>
+      )}
+
       <p className="filter-label">Country</p>
       <div className="chip-row wrap">
-        {FILTER_COUNTRIES.map((country) => (
+        {filterCountries.map((country) => (
           <button
             key={country}
             type="button"
@@ -214,7 +247,7 @@ export function FilterPanel({
           type="button"
           className="link-btn"
           onClick={() =>
-            onChange({ ...filters, countries: [...FILTER_COUNTRIES] })
+            onChange({ ...filters, countries: [...filterCountries] })
           }
         >
           All
@@ -230,14 +263,7 @@ export function FilterPanel({
 
       <p className="filter-label">Language</p>
       <div className="chip-row">
-        {(
-          [
-            ['all', 'All'],
-            ['english', 'English'],
-            ['bilingual', 'FR/EN bilingual'],
-            ['french', 'French'],
-          ] as const
-        ).map(([value, label]) => (
+        {profile.languageOptions.map(({ value, label }) => (
           <button
             key={value}
             type="button"
@@ -248,17 +274,20 @@ export function FilterPanel({
           </button>
         ))}
       </div>
+      {profile.id === 'solange' && (
+        <p className="filter-hint">French and FR/EN bilingual are off the list</p>
+      )}
 
       <p className="filter-label">Academic focus</p>
       <div className="chip-row wrap">
-        {ALL_FOCUS.map((tag) => (
+        {focusTags.map((tag) => (
           <button
             key={tag}
             type="button"
             className={`chip ${filters.focus.includes(tag) ? 'active' : ''}`}
             onClick={() => toggleFocus(tag)}
           >
-            {FOCUS_LABELS[tag]}
+            {profile.focusLabels[tag]}
           </button>
         ))}
       </div>

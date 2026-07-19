@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'react'
-import { FOCUS_LABELS } from '../data/programs'
-import { programYears, totalLabel, tuitionLabel } from '../costs'
+import { totalBreakdownNote, totalLabel, tuitionLabel } from '../costs'
 import { formatMoney, type Currency } from '../currency'
-import type { Program } from '../types'
+import type { Profile } from '../profiles'
+import type { EntryBarrier, Program } from '../types'
 import { WikiPhoto } from './WikiPhoto'
 
+const ENTRY_LABELS: Record<EntryBarrier, string> = {
+  open: 'Open entry',
+  portfolio: 'Portfolio / supplementary',
+  audition: 'Audition / conservatoire',
+}
+
 interface DetailPanelProps {
+  profile: Profile
   program: Program | null
   currency: Currency
   favorited: boolean
@@ -14,6 +21,7 @@ interface DetailPanelProps {
 }
 
 export function DetailPanel({
+  profile,
   program,
   currency,
   favorited,
@@ -68,6 +76,17 @@ export function DetailPanel({
             </a>
           </p>
 
+          {program.entryBarrier && (
+            <div className="detail-entry">
+              <span className={`entry-badge entry-${program.entryBarrier}`}>
+                {ENTRY_LABELS[program.entryBarrier]}
+              </span>
+              {program.entryBarrierNote && (
+                <p className="detail-entry-note">{program.entryBarrierNote}</p>
+              )}
+            </div>
+          )}
+
           <p className="detail-section-label">Highlights</p>
           <ul className="detail-highlights">
             {program.highlights.map((h) => (
@@ -82,12 +101,12 @@ export function DetailPanel({
                 <strong>Overall {program.pathwayOverall}/10</strong>
                 <ul className="detail-notes">
                   <li>
-                    Canada: <strong>{program.pathwayCanada}/10</strong> — Canadian
-                    MSc / geoscience jobs
+                    Canada: <strong>{program.pathwayCanada}/10</strong> —{' '}
+                    {profile.pathwayCanadaHint}
                   </li>
                   <li>
-                    Europe: <strong>{program.pathwayEurope}/10</strong> — EU/EEA
-                    MSc / careers (incl. other countries)
+                    Europe: <strong>{program.pathwayEurope}/10</strong> —{' '}
+                    {profile.pathwayEuropeHint}
                   </li>
                 </ul>
               </dd>
@@ -96,10 +115,7 @@ export function DetailPanel({
               <dt>Est. total (full program)</dt>
               <dd>
                 <strong>{totalLabel(program, currency)}</strong>
-                <span className="muted">
-                  {' '}
-                  — tuition + living × {programYears(program)} years
-                </span>
+                <span className="muted"> {totalBreakdownNote(program)}</span>
                 <div>
                   <button
                     type="button"
@@ -205,7 +221,7 @@ export function DetailPanel({
           <div className="chip-row wrap">
             {program.focus.map((tag) => (
               <span key={tag} className="chip static">
-                {FOCUS_LABELS[tag]}
+                {profile.focusLabels[tag] ?? tag}
               </span>
             ))}
           </div>

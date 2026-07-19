@@ -34,6 +34,10 @@ export function tuitionLabel(p: Program, currency: Currency, perYear = false) {
   return `~${formatMoney(p.tuitionEurMin, currency)}–${formatMoney(p.tuitionEurMax, currency)}${suffix}`
 }
 
+export function livesAtHome(p: Program) {
+  return p.livingCostEur === 0
+}
+
 export function totalLabel(p: Program, currency: Currency) {
   const years = programYears(p)
   const min = totalEurMin(p)
@@ -41,4 +45,13 @@ export function totalLabel(p: Program, currency: Currency) {
   const suffix = ` (${years}-year program)`
   if (min === max) return `~${formatMoney(max, currency)}${suffix}`
   return `~${formatMoney(min, currency)}–${formatMoney(max, currency)}${suffix}`
+}
+
+/** Short explainer under the full-program total. */
+export function totalBreakdownNote(p: Program) {
+  const years = programYears(p)
+  if (livesAtHome(p)) {
+    return `— tuition only × ${years} years (living at home)`
+  }
+  return `— tuition + living × ${years} years`
 }

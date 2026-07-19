@@ -1841,4 +1841,10 @@ export const COUNTRY_FLAGS: Record<string, string> = {
   Lithuania: '🇱🇹',
   Malta: '🇲🇹',
   Netherlands: '🇳🇱',
+  Ireland: '🇮🇪',
+  Cyprus: '🇨🇾',
+  'United Kingdom': '🇬🇧',
+  Greece: '🇬🇷',
+  Spain: '🇪🇸',
+  Romania: '🇷🇴',
 }

@@ -2,6 +2,10 @@ export type Region = 'europe' | 'canada'
 
 export type Language = 'english' | 'bilingual' | 'french'
 
+/** How hard entry is for applicants with little/no stage experience. */
+export type EntryBarrier = 'open' | 'portfolio' | 'audition'
+
+/** Focus tags vary by profile (Earth Science vs Lit/Arts/Drama). */
 export type FocusTag =
   | 'paleontology'
   | 'fieldwork'
@@ -13,6 +17,14 @@ export type FocusTag =
   | 'mapping'
   | 'geoarchaeology'
   | 'marine'
+  | 'literature'
+  | 'creative-writing'
+  | 'drama'
+  | 'theatre'
+  | 'film-media'
+  | 'communications'
+  | 'arts-general'
+  | 'performance'
 
 export interface Program {
   id: string
@@ -40,15 +52,13 @@ export interface Program {
   /** Optional all-in package total (tuition + housing + meals), EUR/year. */
   allInclusiveTotalEur?: number
   /**
-   * Prestige 1–10: Earth Sciences recognition for both further education
-   * (Master’s / PhD admissions) and the geoscience workforce (employers, industry).
-   * Not overall university fame alone.
+   * Prestige 1–10: field recognition for further education and relevant careers.
+   * Meaning is profile-specific (e.g. geoscience vs arts/humanities).
    */
   prestige: number
   /**
    * Pathway strength 1–10: how well this bachelor sets up a Master’s / first career step.
-   * Canada = Canadian MSc / geoscience jobs; Europe = EU/EEA MSc / careers (incl. other countries).
-   * Overall = both-ways mobility (not a simple average when one side is much weaker).
+   * Canada / Europe / Overall meanings are profile-specific in the UI.
    */
   pathwayCanada: number
   pathwayEurope: number
@@ -60,12 +70,19 @@ export interface Program {
   visaEaseScore: number
   visaEaseNotes: string[]
   /**
-   * Summer opportunities 1–5: fieldwork, co-op, relevant paid jobs during the degree.
+   * Summer opportunities 1–5: field/co-op/arts/performance/relevant paid jobs.
    */
   summerScore: number
   summerNotes: string[]
   travelHoursFromLca: number
   travelRoute: string
+  /**
+   * Optional: entry barrier for performance programs (Solange).
+   * Omitted on pure academics / PJ geoscience rows.
+   */
+  entryBarrier?: EntryBarrier
+  /** One-line note shown next to the entry badge. */
+  entryBarrierNote?: string
   focus: FocusTag[]
   focusSummary: string
   highlights: string[]
@@ -79,7 +96,7 @@ export interface Program {
 export interface Filters {
   /** Max estimated full-program total = (tuition + living) × years (EUR). */
   maxTotal: number
-  /** Minimum prestige for further education + geoscience workforce (1–10). */
+  /** Minimum prestige for further education + field recognition (1–10). */
   minPrestige: number
   /** Minimum international student QoL (1–5). */
   minQol: number
@@ -95,4 +112,9 @@ export interface Filters {
   maxTravelHours: number
   /** When true, only show favorited programs. */
   favoritesOnly: boolean
+  /**
+   * Solange: hide conservatoire / audition-gated programs.
+   * Ignored for programs without entryBarrier (e.g. PJ).
+   */
+  hideAuditionGated: boolean
 }

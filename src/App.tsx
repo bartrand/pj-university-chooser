@@ -1,23 +1,38 @@
 import { useEffect, useMemo, useState } from 'react'
-import { FAVORITES_STORAGE_KEY } from './config'
 import { totalEurMax } from './costs'
 import type { Currency } from './currency'
-import { programs } from './data/programs'
-import { DEFAULT_FILTERS } from './defaultFilters'
 import { CurrencyToggle } from './components/CurrencyToggle'
 import { RegionToggle } from './components/RegionToggle'
+import { ProfileToggle } from './components/ProfileToggle'
 import { FilterPanel } from './components/FilterPanel'
 import { ProgramList } from './components/ProgramList'
 import { ProgramMap } from './components/ProgramMap'
 import { DetailPanel } from './components/DetailPanel'
 import { ShortlistCompare } from './components/ShortlistCompare'
-import type { Filters, Region } from './types'
+import {
+  defaultFiltersFor,
+  isProfileId,
+  PROFILE_STORAGE_KEY,
+  PROFILES,
+  type ProfileId,
+} from './profiles'
+import type { Filters, Program, Region } from './types'
 
 type MobileTab = 'map' | 'list' | 'filters'
 
-function loadFavorites(): Set<string> {
+function loadProfileId(): ProfileId {
   try {
-    const raw = localStorage.getItem(FAVORITES_STORAGE_KEY)
+    const raw = localStorage.getItem(PROFILE_STORAGE_KEY)
+    if (raw && isProfileId(raw)) return raw
+  } catch {
+    /* ignore */
+  }
+  return 'pj'
+}
+
+function loadFavorites(key: string): Set<string> {
+  try {
+    const raw = localStorage.getItem(key)
     if (!raw) return new Set()
     const parsed = JSON.parse(raw) as unknown
     if (!Array.isArray(parsed)) return new Set()
@@ -27,7 +42,11 @@ function loadFavorites(): Set<string> {
   }
 }
 
-function matchesFilters(filters: Filters, favorites: Set<string>) {
+function matchesFilters(
+  programs: Program[],
+  filters: Filters,
+  favorites: Set<string>,
+) {
   return programs
     .filter((p) => {
       if (filters.favoritesOnly && !favorites.has(p.id)) return false
@@ -38,8 +57,13 @@ function matchesFilters(filters: Filters, favorites: Set<string>) {
       if (p.summerScore < filters.minSummer) return false
       if (p.travelHoursFromLca > filters.maxTravelHours) return false
       if (!filters.countries.includes(p.country)) return false
-      if (filters.language !== 'all' && p.language !== filters.language) return false
+      if (filters.language !== 'all' && p.language !== filters.language) {
+        return false
+      }
       if (filters.focus.length > 0 && !filters.focus.some((t) => p.focus.includes(t))) {
+        return false
+      }
+      if (filters.hideAuditionGated && p.entryBarrier === 'audition') {
         return false
       }
       return true
@@ -70,17 +94,29 @@ function useIsMobile(query = '(max-width: 900px)') {
 
 export default function App() {
   const isMobile = useIsMobile()
+  const [profileId, setProfileId] = useState<ProfileId>(loadProfileId)
+  const profile = PROFILES[profileId]
+
   const [currency, setCurrency] = useState<Currency>('USD')
-  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS)
+  const [filters, setFilters] = useState<Filters>(() =>
+    defaultFiltersFor(PROFILES[loadProfileId()]),
+  )
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [favorites, setFavorites] = useState<Set<string>>(loadFavorites)
+  const [favorites, setFavorites] = useState<Set<string>>(() =>
+    loadFavorites(PROFILES[loadProfileId()].favoritesKey),
+  )
   const [mapRegion, setMapRegion] = useState<Region>('europe')
   const [mobileTab, setMobileTab] = useState<MobileTab>('map')
   const [showShortlist, setShowShortlist] = useState(false)
 
   useEffect(() => {
-    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify([...favorites]))
-  }, [favorites])
+    localStorage.setItem(PROFILE_STORAGE_KEY, profileId)
+    document.title = profile.documentTitle
+  }, [profileId, profile.documentTitle])
+
+  useEffect(() => {
+    localStorage.setItem(profile.favoritesKey, JSON.stringify([...favorites]))
+  }, [favorites, profile.favoritesKey])
 
   // If the last favourite is removed, clear the favourites-only filter
   useEffect(() => {
@@ -93,17 +129,28 @@ export default function App() {
     if (favorites.size < 2 && showShortlist) setShowShortlist(false)
   }, [favorites.size, showShortlist])
 
+  function handleProfileChange(nextId: ProfileId) {
+    if (nextId === profileId) return
+    const next = PROFILES[nextId]
+    setProfileId(nextId)
+    setFilters(defaultFiltersFor(next))
+    setFavorites(loadFavorites(next.favoritesKey))
+    setSelectedId(null)
+    setShowShortlist(false)
+    setMapRegion('europe')
+  }
+
   const filtered = useMemo(
-    () => matchesFilters(filters, favorites),
-    [filters, favorites],
+    () => matchesFilters(profile.programs, filters, favorites),
+    [profile.programs, filters, favorites],
   )
 
   const favoritePrograms = useMemo(
     () =>
       [...favorites]
-        .map((id) => programs.find((p) => p.id === id))
-        .filter((p): p is (typeof programs)[number] => p != null),
-    [favorites],
+        .map((id) => profile.programs.find((p) => p.id === id))
+        .filter((p): p is Program => p != null),
+    [favorites, profile.programs],
   )
 
   const europePrograms = useMemo(
@@ -116,7 +163,7 @@ export default function App() {
   )
 
   // Keep detail open even if the program is filtered out of the list/maps
-  const selected = programs.find((p) => p.id === selectedId) ?? null
+  const selected = profile.programs.find((p) => p.id === selectedId) ?? null
 
   function toggleFavorite(id: string) {
     setFavorites((prev) => {
@@ -129,7 +176,7 @@ export default function App() {
 
   function handleSelect(id: string) {
     setSelectedId(id)
-    const program = programs.find((p) => p.id === id)
+    const program = profile.programs.find((p) => p.id === id)
     if (program) setMapRegion(program.region)
     if (isMobile) setMobileTab('map')
   }
@@ -141,12 +188,11 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <div>
-          <p className="brand">PJ University Chooser</p>
-          <p className="tagline">
-            Earth science · Fall 2027 · Europe + Canada
-          </p>
+          <p className="brand">{profile.brand}</p>
+          <p className="tagline">{profile.tagline}</p>
         </div>
         <div className="topbar-controls">
+          <ProfileToggle profileId={profileId} onChange={handleProfileChange} />
           {favorites.size >= 2 && (
             <button
               type="button"
@@ -183,6 +229,7 @@ export default function App() {
       <div className={`workspace mobile-tab-${mobileTab}`}>
         <aside className="filters-pane" aria-label="Filters">
           <FilterPanel
+            profile={profile}
             currency={currency}
             filters={filters}
             onChange={setFilters}
@@ -218,6 +265,7 @@ export default function App() {
             )}
           </div>
           <DetailPanel
+            profile={profile}
             program={selected}
             currency={currency}
             favorited={selected ? favorites.has(selected.id) : false}
@@ -242,6 +290,7 @@ export default function App() {
 
       {showShortlist && favoritePrograms.length >= 2 && (
         <ShortlistCompare
+          profile={profile}
           programs={favoritePrograms}
           currency={currency}
           onSelect={handleSelect}

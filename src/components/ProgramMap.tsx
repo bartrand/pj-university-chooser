@@ -5,6 +5,56 @@ import { HOME_BASES } from '../data/programs'
 import type { Program, Region } from '../types'
 import 'leaflet/dist/leaflet.css'
 
+/** Chooser list that closes the Leaflet popup after a pick. */
+function PinProgramChooser({
+  pin,
+  selectedId,
+  onSelect,
+}: {
+  pin: PinGroup
+  selectedId: string | null
+  onSelect: (id: string) => void
+}) {
+  const map = useMap()
+
+  function pick(id: string) {
+    onSelect(id)
+    map.closePopup()
+  }
+
+  return (
+    <div className="map-pin-chooser">
+      <p className="map-pin-chooser-title">
+        <strong>
+          {pin.city}, {pin.country}
+        </strong>
+        <span className="muted">
+          {' '}
+          — {pin.programs.length} programs
+        </span>
+      </p>
+      <ul className="map-pin-chooser-list">
+        {pin.programs.map((p) => (
+          <li key={p.id}>
+            <button
+              type="button"
+              className={
+                p.id === selectedId
+                  ? 'map-pin-chooser-btn is-selected'
+                  : 'map-pin-chooser-btn'
+              }
+              onClick={() => pick(p.id)}
+            >
+              <span className="map-pin-chooser-uni">{p.university}</span>
+              <span className="map-pin-chooser-prog">{p.program}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 // Local copies in /public — works with GitHub Pages base path
 const base = import.meta.env.BASE_URL
 const uniIcon = L.icon({
@@ -29,13 +79,16 @@ const REGION_VIEW: Record<Region, { center: [number, number]; zoom: number }> = 
   canada: { center: [56, -96], zoom: 3 },
 }
 
-/**
- * Fan out markers that sit on (nearly) the same spot — e.g. two Krakow unis —
- * so both pins stay visible and clickable at regional zoom.
- */
-function offsetOverlapping(
-  programs: Program[],
-): { program: Program; position: [number, number] }[] {
+type PinGroup = {
+  key: string
+  city: string
+  country: string
+  position: [number, number]
+  programs: Program[]
+}
+
+/** Group by city so one accurate pin can open a chooser when several schools share a place. */
+function groupByCity(programs: Program[]): PinGroup[] {
   const groups = new Map<string, Program[]>()
   for (const p of programs) {
     const key = `${p.city}|${p.country}`
@@ -44,28 +97,27 @@ function offsetOverlapping(
     groups.set(key, list)
   }
 
-  const placed: { program: Program; position: [number, number] }[] = []
-  for (const group of groups.values()) {
-    if (group.length === 1) {
-      placed.push({ program: group[0], position: [group[0].lat, group[0].lng] })
-      continue
+  return [...groups.entries()].map(([key, list]) => {
+    const lat = list.reduce((s, p) => s + p.lat, 0) / list.length
+    const lng = list.reduce((s, p) => s + p.lng, 0) / list.length
+    return {
+      key,
+      city: list[0].city,
+      country: list[0].country,
+      position: [lat, lng],
+      programs: list,
     }
-    const lat0 = group.reduce((s, p) => s + p.lat, 0) / group.length
-    const lng0 = group.reduce((s, p) => s + p.lng, 0) / group.length
-    const radius = 0.35
-    group.forEach((p, i) => {
-      const angle = (2 * Math.PI * i) / group.length - Math.PI / 2
-      const cosLat = Math.cos((lat0 * Math.PI) / 180)
-      placed.push({
-        program: p,
-        position: [
-          lat0 + radius * Math.cos(angle),
-          lng0 + (radius * Math.sin(angle)) / Math.max(cosLat, 0.2),
-        ],
-      })
-    })
-  }
-  return placed
+  })
+}
+
+function multiPinIcon(count: number) {
+  return L.divIcon({
+    className: 'cluster-marker',
+    html: `<div class="cluster-marker-pin"><span>${count}</span></div>`,
+    iconSize: [32, 40],
+    iconAnchor: [16, 40],
+    popupAnchor: [0, -36],
+  })
 }
 
 function FitBounds({ programs, region }: { programs: Program[]; region: Region }) {
@@ -101,7 +153,7 @@ export function ProgramMap({
   onSelect,
 }: ProgramMapProps) {
   const view = REGION_VIEW[region]
-  const markers = useMemo(() => offsetOverlapping(programs), [programs])
+  const pins = useMemo(() => groupByCity(programs), [programs])
 
   return (
     <div className="map-wrap">
@@ -129,21 +181,45 @@ export function ProgramMap({
             </Marker>
           ))}
 
-        {markers.map(({ program: p, position }) => (
-          <Marker
-            key={p.id}
-            position={position}
-            icon={uniIcon}
-            eventHandlers={{ click: () => onSelect(p.id) }}
-            opacity={selectedId && selectedId !== p.id ? 0.55 : 1}
-          >
-            <Popup>
-              <strong>{p.university}</strong>
-              <br />
-              {p.city}, {p.country}
-            </Popup>
-          </Marker>
-        ))}
+        {pins.map((pin) => {
+          const multi = pin.programs.length > 1
+          const containsSelected = pin.programs.some((p) => p.id === selectedId)
+          const dimmed = Boolean(selectedId && !containsSelected)
+
+          return (
+            <Marker
+              key={pin.key}
+              position={pin.position}
+              icon={multi ? multiPinIcon(pin.programs.length) : uniIcon}
+              eventHandlers={{
+                click: () => {
+                  if (!multi) onSelect(pin.programs[0].id)
+                },
+              }}
+              opacity={dimmed ? 0.55 : 1}
+            >
+              <Popup>
+                {multi ? (
+                  <PinProgramChooser
+                    pin={pin}
+                    selectedId={selectedId}
+                    onSelect={onSelect}
+                  />
+                ) : (
+                  <>
+                    <strong>{pin.programs[0].university}</strong>
+                    <br />
+                    {pin.programs[0].program}
+                    <br />
+                    <span className="muted">
+                      {pin.city}, {pin.country}
+                    </span>
+                  </>
+                )}
+              </Popup>
+            </Marker>
+          )
+        })}
       </MapContainer>
 
       {programs.length === 0 && (

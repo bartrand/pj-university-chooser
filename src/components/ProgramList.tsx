@@ -1,19 +1,12 @@
 import { programYears, totalEurMax } from '../costs'
 import { formatMoney, type Currency } from '../currency'
-import type { Program } from '../types'
+import { COUNTRY_FLAGS } from '../data/programs'
+import type { EntryBarrier, Program } from '../types'
 
-const COUNTRY_FLAGS: Record<string, string> = {
-  Italy: '🇮🇹',
-  France: '🇫🇷',
-  Belgium: '🇧🇪',
-  Germany: '🇩🇪',
-  'Czech Republic': '🇨🇿',
-  Hungary: '🇭🇺',
-  Poland: '🇵🇱',
-  Lithuania: '🇱🇹',
-  Malta: '🇲🇹',
-  Netherlands: '🇳🇱',
-  Canada: '🇨🇦',
+const ENTRY_LABELS: Record<EntryBarrier, string> = {
+  open: 'Open entry',
+  portfolio: 'Portfolio',
+  audition: 'Audition',
 }
 
 interface ProgramListProps {
@@ -69,6 +62,14 @@ export function ProgramList({
                 {COUNTRY_FLAGS[p.country] ?? ''} {p.city}, {p.country} · Prestige{' '}
                 {p.prestige}/10
               </span>
+              {p.entryBarrier && (
+                <span
+                  className={`entry-badge entry-${p.entryBarrier}`}
+                  title={p.entryBarrierNote}
+                >
+                  {ENTRY_LABELS[p.entryBarrier]}
+                </span>
+              )}
               <span className="list-scores">
                 Pathway CA {p.pathwayCanada} · EU {p.pathwayEurope} · Overall{' '}
                 {p.pathwayOverall}/10
