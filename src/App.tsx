@@ -22,6 +22,12 @@ type MobileTab = 'map' | 'list' | 'filters'
 
 function loadProfileId(): ProfileId {
   try {
+    const fromUrl = new URLSearchParams(window.location.search).get('profile')
+    if (fromUrl && isProfileId(fromUrl)) return fromUrl
+  } catch {
+    /* ignore */
+  }
+  try {
     const raw = localStorage.getItem(PROFILE_STORAGE_KEY)
     if (raw && isProfileId(raw)) return raw
   } catch {
@@ -112,6 +118,13 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem(PROFILE_STORAGE_KEY, profileId)
     document.title = profile.documentTitle
+    try {
+      const url = new URL(window.location.href)
+      url.searchParams.set('profile', profileId)
+      window.history.replaceState({}, '', url)
+    } catch {
+      /* ignore */
+    }
   }, [profileId, profile.documentTitle])
 
   useEffect(() => {
